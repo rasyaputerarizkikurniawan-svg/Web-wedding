@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Memory Board - Digital Signage</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div>
+            <div class="header-brand">
+                <div class="brand-title">Interactive Memory Board</div>
+                <h1 class="couple-names">Rian &amp; Sinta</h1>
+                <div class="board-subtitle">Leave your heartfelt wishes &amp; signatures</div>
+            </div>
+
+            <!-- Galeri Foto & Video Pengantin -->
+            <div class="wedding-gallery">
+                <div class="gallery-item" onclick="openMedia('image', 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80')">
+                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=300&q=80" alt="Pre-wedding 1">
+                </div>
+                <div class="gallery-item" onclick="openMedia('image', 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80')">
+                    <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=300&q=80" alt="Pre-wedding 2">
+                </div>
+                <!-- Contoh Video Teaser (bisa diganti link video lokal/cloud Anda) -->
+                <div class="gallery-item" onclick="openMedia('video', 'https://www.w3schools.com/html/mov_bbb.mp4')">
+                    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
+                    <div class="play-badge">▶</div>
+                </div>
+            </div>
+
+            <div class="theme-picker">
+                <span>Tema Board:</span>
+                <div class="color-btn" style="background: #800020;" onclick="setTheme('#800020', '#500010', '#1a0508', '#0a0203')" title="Marun"></div>
+                <div class="color-btn" style="background: #d4af37;" onclick="setTheme('#d4af37', '#aa771c', '#121614', '#080c0a')" title="Gold"></div>
+                <div class="color-btn" style="background: #1b4d3e;" onclick="setTheme('#1b4d3e', '#0f2e24', '#091410', '#030806')" title="Emerald"></div>
+                <div class="color-btn" style="background: #1e3d59;" onclick="setTheme('#1e3d59', '#12263a', '#081017', '#030508')" title="Navy"></div>
+            </div>
+        </div>
+
+        <form id="guestForm" style="display: flex; flex-direction: column; flex: 1;">
+            
+            <!-- STEP 1 -->
+            <div id="step1" class="step-section active">
+                <div class="form-group">
+                    <label for="name">Nama Tamu &amp; Relasi:</label>
+                    <input type="text" id="name" placeholder="Contoh: Budi (Sahabat Pengantin)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Pesan &amp; Ucapan Singkat:</label>
+                    <textarea id="message" placeholder="Tuliskan doa terbaik untuk pengantin..."></textarea>
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" class="btn-next" id="nextBtn">Lanjut ke Tanda Tangan &rarr;</button>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div id="step2" class="step-section">
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                    <label>Tuliskan Tanda Tangan / Coretan Anda:</label>
+                    
+                    <div class="pen-color-picker">
+                        <span>Warna Tinta:</span>
+                        <div class="pen-btn active-pen" style="background: #1a0508;" onclick="setPenColor('#1a0508', this)" title="Hitam"></div>
+                        <div class="pen-btn" style="background: #d4af37;" onclick="setPenColor('#d4af37', this)" title="Gold"></div>
+                        <div class="pen-btn" style="background: #800020;" onclick="setPenColor('#800020', this)" title="Marun"></div>
+                        <div class="pen-btn" style="background: #1e3d59;" onclick="setPenColor('#1e3d59', this)" title="Navy"></div>
+                        <div class="pen-btn" style="background: #1b4d3e;" onclick="setPenColor('#1b4d3e', this)" title="Emerald"></div>
+                    </div>
+
+                    <div class="canvas-wrapper">
+                        <canvas id="signatureCanvas"></canvas>
+                    </div>
+                    <button type="button" class="btn-clear" id="clearBtn">Hapus / Ulangi</button>
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" class="btn-secondary" id="backBtn">&larr; Kembali</button>
+                    <button type="submit" class="btn-submit">Kirim Kenangan</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Modal Popup Media Preview -->
+    <div id="mediaModal" class="media-modal" onclick="closeMedia()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeMedia()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        function setTheme(primary, dark, bg1, bg2) {
+            const root = document.documentElement;
+            root.style.setProperty('--primary-color', primary);
+            root.style.setProperty('--primary-dark', dark);
+            root.style.setProperty('--bg-gradient-1', bg1);
+            root.style.setProperty('--bg-gradient-2', bg2);
+        }
+
+        // Fungsi Modal Media
+        function openMedia(type, url) {
+            const modal = document.getElementById('mediaModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            if (type === 'image') {
+                modalBody.innerHTML = `<img src="${url}" alt="Preview Foto">`;
+            } else if (type === 'video') {
+                modalBody.innerHTML = `<video src="${url}" controls autoplay></video>`;
+            }
+            modal.classList.add('active');
+        }
+
+        function closeMedia() {
+            const modal = document.getElementById('mediaModal');
+            modal.classList.remove('active');
+            document.getElementById('modalBody').innerHTML = ''; // Hentikan video saat ditutup
+        }
+
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const guestForm = document.getElementById('guestForm');
+
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentPenColor = '#1a0508';
+
+        function setPenColor(color, element) {
+            currentPenColor = color;
+            ctx.strokeStyle = currentPenColor;
+            document.querySelectorAll('.pen-btn').forEach(btn => btn.classList.remove('active-pen'));
+            element.classList.add('active-pen');
+        }
+
+        function initCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            ctx.strokeStyle = currentPenColor;
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        nextBtn.addEventListener('click', () => {
+            const nameInput = document.getElementById('name').value.trim();
+            const messageInput = document.getElementById('message').value.trim();
+
+            if (!nameInput || !messageInput) {
+                alert('Mohon isi Nama dan Pesan ucapan terlebih dahulu!');
+                return;
+            }
+
+            step1.classList.remove('active');
+            setTimeout(() => {
+                step2.classList.add('active');
+                initCanvas();
+            }, 150);
+        });
+
+        backBtn.addEventListener('click', () => {
+            step2.classList.remove('active');
+            setTimeout(() => {
+                step1.classList.add('active');
+            }, 150);
+        });
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); stopDrop(); }, { passive: false });
+
+        function startDraw(e) {
+            isDrawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = currentPenColor;
+            ctx.stroke();
+        }
+
+        function stopDraw() {
+            isDrawing = false;
+        }
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        guestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+            const signatureData = canvas.toDataURL('image/png');
+
+            alert(`Terima kasih, ${name}! Memory & ucapan Anda berhasil disimpan.`);
+            
+            guestForm.reset();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            step2.classList.remove('active');
+            step1.classList.add('active');
+        });
+
+        window.addEventListener('resize', () => {
+            if (step2.classList.contains('active')) {
+                initCanvas();
+            }
+        });
+    </script>
+
+</body>
+</html>
